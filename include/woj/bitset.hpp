@@ -1176,7 +1176,7 @@ namespace woj
          */
         constexpr bitset& operator=(const bitset& other) noexcept
         {
-            from_other(other);
+            _from_other(other);
             return *this;
         }
 
@@ -1188,7 +1188,7 @@ namespace woj
         template <size_type OtherSize> requires (Size != OtherSize)
         constexpr bitset& operator=(const bitset<BlockType, OtherSize>& other) noexcept
         {
-            from_other<OtherSize>(other);
+            _from_other<OtherSize>(other);
             return *this;
         }
 
@@ -1403,68 +1403,132 @@ namespace woj
         }
 
         /**
-         * Bitwise right shift operator
-         * @param shift Amount of bits to shift to the right
-         * @return New bitset instance containing the result of the operation
-         */
+		 * Bitwise right shift operator
+		 * @param shift Amount of bits to shift to the right
+		 * @return New bitset instance containing the result of the operation
+		 */
         [[nodiscard]] constexpr bitset operator>>(const size_type& shift) const noexcept
         {
             bitset result;
-            if (shift <= m_block_size)
+
+            // Number of blocks to shift
+            const size_type block_shift = shift / m_block_size;
+
+            // Number of bits to shift within a block
+            const size_type bit_shift = shift % m_block_size;
+
+            // Shift across multiple blocks
+            for (size_type i = 0; i < m_storage_size; ++i)
             {
-                for (size_type i = 0; i < m_storage_size; ++i)
-                    result.m_data[i] = m_data[i] >> shift;
+                // Handle shifting within a block
+                result.m_data[i] = (i + block_shift < m_storage_size) ?
+                    (m_data[i + block_shift] >> bit_shift) :
+                    0; // If shifting exceeds block boundaries, fill with zeros
+                // If there are remaining bits to shift to the next block
+                if (bit_shift > 0 && i + block_shift + 1 < m_storage_size)
+                {
+                    // Shift the remaining bits to the next block
+                    result.m_data[i] |= (m_data[i + block_shift + 1] << (m_block_size - bit_shift));
+                }
             }
 
             return result;
         }
 
         /**
-         * Apply bitwise right shift operation
-         * @param shift Amount of bits to shift to the right
-         */
+        * Apply bitwise right shift operation
+        * @param shift Amount of bits to shift to the right
+        */
         constexpr bitset& operator>>=(const size_type& shift) noexcept
         {
             if (shift > m_block_size)
                 clear();
             else
             {
+                // Number of blocks to shift
+                const size_type block_shift = shift / m_block_size;
+
+                // Number of bits to shift within a block
+                const size_type bit_shift = shift % m_block_size;
+
+                // Shift across multiple blocks
                 for (size_type i = 0; i < m_storage_size; ++i)
-                    m_data[i] >>= shift;
+                {
+                    // Handle shifting within a block
+                    m_data[i] = i + block_shift < m_storage_size ?
+                        m_data[i + block_shift] >> bit_shift :
+                        0; // If shifting exceeds block boundaries, fill with zeros
+                    // If there are remaining bits to shift to the next block
+                    if (bit_shift > 0 && i + block_shift + 1 < m_storage_size)
+                    {
+                        // Shift the remaining bits to the next block
+                        m_data[i] |= m_data[i + block_shift + 1] << m_block_size - bit_shift;
+                    }
+                }
             }
             return *this;
         }
 
-
         /**
-         * Bitwise right shift operator
-         * @param shift Amount of bits to shift to the right
-         * @return New bitset instance containing the result of the operation
-         */
+		 * Bitwise left shift operator
+		 * @param shift Amount of bits to shift to the left
+		 * @return New bitset instance containing the result of the operation
+		 */
         [[nodiscard]] constexpr bitset operator<<(const size_type& shift) const noexcept
         {
             bitset result;
-            if (shift <= m_block_size)
+
+            // Number of blocks to shift
+            const size_type block_shift = shift / m_block_size;
+
+            // Number of bits to shift within a block
+            const size_type bit_shift = shift % m_block_size;
+
+            // Shift across multiple blocks
+            for (size_type i = 0; i < m_storage_size; ++i)
             {
-                for (size_type i = 0; i < m_storage_size; ++i)
-                    result.m_data[i] = m_data[i] << shift;
+                // Handle shifting within a block
+                result.m_data[i] = i >= block_shift ?
+                    m_data[i - block_shift] << bit_shift :
+                    0; // If shifting exceeds block boundaries, fill with zeros
+                // If there are remaining bits to shift to the previous block
+                if (bit_shift > 0 && i >= block_shift + 1)
+                {
+                    // Shift the remaining bits to the previous block
+                    result.m_data[i] |= m_data[i - block_shift - 1] >> m_block_size - bit_shift;
+                }
             }
+
             return result;
         }
 
         /**
-         * Apply bitwise right shift operation
-         * @param shift Amount of bits to shift to the right
+         * Apply bitwise left shift operation
+         * @param shift Amount of bits to shift to the left
          */
         constexpr bitset& operator<<=(const size_type& shift) noexcept
         {
-            if (shift > m_block_size)
-                clear();
-            else
+            // Number of blocks to shift
+            const size_type block_shift = shift / m_block_size;
+
+            // Number of bits to shift within a block
+            const size_type bit_shift = shift % m_block_size;
+
+            // Shift across multiple blocks
+            for (size_type i = 0; i < m_storage_size; ++i)
             {
-                for (size_type i = 0; i < m_storage_size; ++i)
-                    m_data[i] <<= shift;
+                // Handle shifting within a block
+                m_data[i] = i >= block_shift ?
+                    m_data[i - block_shift] << bit_shift :
+                    0; // If shifting exceeds block boundaries, fill with zeros
+                // If there are remaining bits to shift to the previous block
+                if (bit_shift > 0 && i >= block_shift + 1)
+                {
+                    // Shift the remaining bits to the previous block
+                    m_data[i] |= m_data[i - block_shift - 1] >> m_block_size - bit_shift;
+                }
             }
+
             return *this;
         }
 
@@ -2186,8 +2250,8 @@ namespace woj
         {
             // Initialize variables
             size_type blocks_size, current_block = begin / m_block_size + 1 + step / m_block_size, current_offset = 0;
-            uint16_t offset;
-            const size_type end_block = end / m_block_size + (end % m_block_size ? 1 : 0);
+
+        	const size_type end_block = end / m_block_size + (end % m_block_size ? 1 : 0);
 
             // Determine the size of blocks based on step and block size
             if ((step % 2 || step <= m_block_size) && m_block_size % step) {
@@ -2217,21 +2281,7 @@ namespace woj
 
 
             // Calculate the offset
-            if (begin < m_block_size)
-            {
-                offset = (m_block_size - begin) % step;
-                if (offset)
-                    offset = step - offset;
-            }
-            else
-            {
-                offset = (begin - m_block_size) % step;
-            }
-
-            if (offset)
-                offset = (m_block_size - offset + step / m_block_size * m_block_size) % step;
-
-            std::cout << "offset: " << offset << '\n';
+            uint16_t offset = (step - (m_block_size - begin % m_block_size) % step) % step;
 
             // Create and apply the beginning block
             {
@@ -2251,9 +2301,11 @@ namespace woj
 
             // Fill with appropriate block
             std::cout << blocks_size << " blocks\n";
-            std::cout << (std::min)(blocks_size + begin / m_block_size, m_storage_size) << " blocks\n";
+            std::cout << (std::min)(blocks_size, m_storage_size) << " blocks\n";
             for (size_type i = 0; i < (std::min)(blocks_size, m_storage_size); ++i)
             {
+                std::cout << "offset: " << offset << '\n';
+
                 // Generate block for the current iteration
                 BlockType block = 0;
 
@@ -2261,17 +2313,17 @@ namespace woj
                 {
                     for (uint16_t j = !i ? offset : 0; j < m_block_size; ++j)
                     {
-                        std::cout << current_block * m_block_size + j - offset << '\n';
-                        if (!((current_block * m_block_size + j - offset) % step))
+                        //std::cout << current_block * m_block_size + j - offset << '\n';
+                        if (!((i * m_block_size + j - offset) % step))
                             block |= BlockType{ 1 } << j;
                     }
                 }
                 else
                 {
                     block = (std::numeric_limits<BlockType>::max)();
-                    for (uint16_t j = (!i ? offset : 0); j < m_block_size; ++j)
+                    for (uint16_t j = !i ? offset : 0; j < m_block_size; ++j)
                     {
-                        if (!((current_block * m_block_size + j - offset) % step))
+                        if (!((i * m_block_size + j - offset) % step))
                             block &= ~(BlockType{ 1 } << j);
                     }
                 }
@@ -2285,31 +2337,14 @@ namespace woj
                 std::cout << '\n';
 
                 // Apply the block
-                for (size_type j = current_block; j < m_storage_size; ++j)
+                for (size_type j = current_block++; j < m_storage_size; j += blocks_size)
                 {
-                    if (j == end_block - 1 && end % m_block_size)
-                    {
-                        // Remove bits that overflow the range
-                        if (value)
-                        {
-                            for (uint16_t k = end % m_block_size; k < m_block_size; ++k)
-                                block &= ~(BlockType{ 1 } << k);
-                            *(m_data + j) |= block;
-                        }
-                        else
-                        {
-                            for (uint16_t k = end % m_block_size; k < m_block_size; ++k)
-                                block |= BlockType{ 1 } << k;
-                            *(m_data + j) &= block;
-                        }
-                        break;
-                    }
                     if (value)
                         *(m_data + j) |= block;
                     else
                         *(m_data + j) &= block;
                 }
-                ++current_block;
+                offset = (step - (m_block_size - offset % m_block_size) % step) % step;
             }
         }
 
@@ -2413,7 +2448,7 @@ namespace woj
 		 * @param end End of the range to fill (block index)
 		 * @param step Step size between the bits to fill (block step)
 		 */
-        constexpr void fill_block_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
+        constexpr void set_block_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
         {
             for (size_type i = begin; i < end; i += step)
                 m_data[i] = (std::numeric_limits<BlockType>::max)();
@@ -3787,7 +3822,7 @@ namespace woj
         }
 
         /**
-         * Move constructor
+         * Move constructfor
          * @param other Other dynamic_bitset instance to move from
          */
         dynamic_bitset(dynamic_bitset&& other) noexcept : m_partial_size(other.m_partial_size), m_storage_size(other.m_storage_size), m_size(other.m_size), m_data(other.m_data)
@@ -4014,7 +4049,7 @@ namespace woj
         void _from_other(const dynamic_bitset& other) noexcept
         {
             if (this != &other)
-                std::copy(other.m_data, other.m_data + (std::min<size_type>)(m_storage_size, other.m_storage_size), m_data);
+                std::copy(other.m_data, other.m_data + (std::min)(m_storage_size, other.m_storage_size), m_data);
             for (size_type i = other.m_storage_size; i < m_storage_size; ++i)
                 *(m_data + i) = 0;
         }
@@ -4285,7 +4320,7 @@ namespace woj
          */
         [[nodiscard]] dynamic_bitset operator&(const dynamic_bitset& other) const noexcept
         {
-            dynamic_bitset result;
+            dynamic_bitset result(m_size);
             for (size_type i = 0; i < result.m_storage_size; ++i)
                 result.m_data[i] = m_data[i] & other.m_data[i];
             return result;
@@ -4309,7 +4344,7 @@ namespace woj
          */
         [[nodiscard]] dynamic_bitset operator|(const dynamic_bitset& other) const noexcept
         {
-            dynamic_bitset result;
+            dynamic_bitset result(m_size);
             for (size_type i = 0; i < result.m_storage_size; ++i)
                 result.m_data[i] = m_data[i] | other.m_data[i];
             return result;
@@ -4333,7 +4368,7 @@ namespace woj
          */
         [[nodiscard]] dynamic_bitset operator^(const dynamic_bitset& other) const noexcept
         {
-            dynamic_bitset result;
+            dynamic_bitset result(m_size);
             for (size_type i = 0; i < result.m_storage_size; ++i)
                 result.m_data[i] = m_data[i] ^ other.m_data[i];
             return result;
@@ -4356,74 +4391,139 @@ namespace woj
          */
         [[nodiscard]] dynamic_bitset operator~() const noexcept
         {
-            dynamic_bitset result;
+            dynamic_bitset result(size);
             for (size_type i = 0; i < m_storage_size; ++i)
                 result.m_data[i] = ~m_data[i];
             return result;
         }
 
         /**
-         * Bitwise right shift operator
-         * @param shift Amount of bits to shift to the right
-         * @return New bitset instance containing the result of the operation
-         */
-        [[nodiscard]] dynamic_bitset operator>>(const size_type& shift) const noexcept
+		 * Bitwise right shift operator
+		 * @param shift Amount of bits to shift to the right
+		 * @return New bitset instance containing the result of the operation
+		 */
+        [[nodiscard]] constexpr dynamic_bitset operator>>(const size_type& shift) const noexcept
         {
-            dynamic_bitset result;
-            if (shift <= m_block_size)
+            dynamic_bitset result(m_size);
+
+            // Number of blocks to shift
+            const size_type block_shift = shift / m_block_size;
+
+            // Number of bits to shift within a block
+            const size_type bit_shift = shift % m_block_size;
+
+            // Shift across multiple blocks
+            for (size_type i = 0; i < m_storage_size; ++i)
             {
-                for (size_type i = 0; i < m_storage_size; ++i)
-                    result.m_data[i] = m_data[i] >> shift;
+                // Handle shifting within a block
+                result.m_data[i] = (i + block_shift < m_storage_size) ?
+                    (m_data[i + block_shift] >> bit_shift) :
+                    0; // If shifting exceeds block boundaries, fill with zeros
+                // If there are remaining bits to shift to the next block
+                if (bit_shift > 0 && i + block_shift + 1 < m_storage_size)
+                {
+                    // Shift the remaining bits to the next block
+                    result.m_data[i] |= (m_data[i + block_shift + 1] << (m_block_size - bit_shift));
+                }
             }
+
             return result;
         }
 
         /**
-         * Apply bitwise right shift operation
-         * @param shift Amount of bits to shift to the right
-         */
-        dynamic_bitset& operator>>=(const size_type& shift) noexcept
+        * Apply bitwise right shift operation
+        * @param shift Amount of bits to shift to the right
+        */
+        constexpr dynamic_bitset& operator>>=(const size_type& shift) noexcept
         {
             if (shift > m_block_size)
                 clear();
             else
             {
+                // Number of blocks to shift
+                const size_type block_shift = shift / m_block_size;
+
+                // Number of bits to shift within a block
+                const size_type bit_shift = shift % m_block_size;
+
+                // Shift across multiple blocks
                 for (size_type i = 0; i < m_storage_size; ++i)
-                    m_data[i] >>= shift;
+                {
+                    // Handle shifting within a block
+                    m_data[i] = i + block_shift < m_storage_size ?
+                        m_data[i + block_shift] >> bit_shift :
+                        0; // If shifting exceeds block boundaries, fill with zeros
+                    // If there are remaining bits to shift to the next block
+                    if (bit_shift > 0 && i + block_shift + 1 < m_storage_size)
+                    {
+                        // Shift the remaining bits to the next block
+                        m_data[i] |= m_data[i + block_shift + 1] << m_block_size - bit_shift;
+                    }
+                }
             }
             return *this;
         }
 
-
         /**
-         * Bitwise right shift operator
-         * @param shift Amount of bits to shift to the right
+         * Bitwise left shift operator
+         * @param shift Amount of bits to shift to the left
          * @return New bitset instance containing the result of the operation
          */
-        [[nodiscard]] dynamic_bitset operator<<(const size_type& shift) const noexcept
+        [[nodiscard]] constexpr dynamic_bitset operator<<(const size_type& shift) const noexcept
         {
-            dynamic_bitset result;
-            if (shift <= m_block_size)
+            dynamic_bitset result(m_size);
+
+            // Number of blocks to shift
+            const size_type block_shift = shift / m_block_size;
+
+            // Number of bits to shift within a block
+            const size_type bit_shift = shift % m_block_size;
+
+            // Shift across multiple blocks
+            for (size_type i = 0; i < m_storage_size; ++i)
             {
-                for (size_type i = 0; i < m_storage_size; ++i)
-                    result.m_data[i] = m_data[i] << shift;
+                // Handle shifting within a block
+                result.m_data[i] = i >= block_shift ?
+                    m_data[i - block_shift] << bit_shift :
+                    0; // If shifting exceeds block boundaries, fill with zeros
+                // If there are remaining bits to shift to the previous block
+                if (bit_shift > 0 && i >= block_shift + 1)
+                {
+                    // Shift the remaining bits to the previous block
+                    result.m_data[i] |= m_data[i - block_shift - 1] >> m_block_size - bit_shift;
+                }
             }
+
             return result;
         }
 
         /**
-         * Apply bitwise right shift operation
-         * @param shift Amount of bits to shift to the right
+         * Apply bitwise left shift operation
+         * @param shift Amount of bits to shift to the left
          */
-        dynamic_bitset& operator<<=(const size_type& shift) noexcept
+        constexpr dynamic_bitset& operator<<=(const size_type& shift) noexcept
         {
-            if (shift > m_block_size)
-                clear();
-            else
+            // Number of blocks to shift
+            const size_type block_shift = shift / m_block_size;
+
+            // Number of bits to shift within a block
+            const size_type bit_shift = shift % m_block_size;
+
+            // Shift across multiple blocks
+            for (size_type i = 0; i < m_storage_size; ++i)
             {
-                for (size_type i = 0; i < m_storage_size; ++i)
-                    m_data[i] <<= shift;
+                // Handle shifting within a block
+                m_data[i] = i >= block_shift ?
+                    m_data[i - block_shift] << bit_shift :
+                    0; // If shifting exceeds block boundaries, fill with zeros
+                // If there are remaining bits to shift to the previous block
+                if (bit_shift > 0 && i >= block_shift + 1)
+                {
+                    // Shift the remaining bits to the previous block
+                    m_data[i] |= m_data[i - block_shift - 1] >> m_block_size - bit_shift;
+                }
             }
+
             return *this;
         }
 
@@ -4434,7 +4534,7 @@ namespace woj
          */
         [[nodiscard]] dynamic_bitset operator-(const dynamic_bitset& other) const noexcept
         {
-            dynamic_bitset result;
+            dynamic_bitset result(m_size);
             for (size_type i = 0; i < result.m_storage_size; ++i)
                 result.m_data[i] = m_data[i] & ~other.m_data[i];
             return result;
@@ -5069,7 +5169,7 @@ namespace woj
 		 * @param end End of the range to fill (block index)
 		 * @param step Step size between the bits to fill (block step)
 		 */
-        void fill_block_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
+        void set_block_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
         {
             for (size_type i = begin; i < end; i += step)
                 m_data[i] = (std::numeric_limits<BlockType>::max)();

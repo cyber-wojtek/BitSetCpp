@@ -47,6 +47,14 @@ namespace woj
     {
     public:
 
+        template <unsigned_integer BlockType, std::size_t Size>
+        friend std::ostream& operator<<(std::ostream& os, const bitset<BlockType, Size>& obj)
+        {
+            for (size_type i = 0; i < Size; ++i)
+                os << obj.test(i);
+            return os;
+        }
+
         // Type definitions
 
         // Reference types
@@ -2746,7 +2754,7 @@ namespace woj
         /**
 		 * Underlying array of blocks containing the bits
 		 */
-        alignas(64) BlockType m_data[m_storage_size];
+    	alignas(BlockType) BlockType m_data[m_storage_size];
     };
 
     /**
@@ -2763,6 +2771,13 @@ namespace woj
     class dynamic_bitset
     {
     public:
+        template <unsigned_integer BlockType>
+        friend std::ostream& operator<<(std::ostream& os, const dynamic_bitset<BlockType>& obj)
+        {
+            for (size_type i = 0; i < obj.m_size; ++i)
+                os << obj.test(i);
+            return os;
+        }
 
         // Type definitions
 
@@ -5698,7 +5713,7 @@ namespace woj
         /**
          * Underlying array of blocks containing the bits
          */
-         alignas(64) BlockType* m_data;
+        alignas(BlockType) BlockType* m_data;
     };
 };
 

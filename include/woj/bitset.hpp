@@ -5698,7 +5698,7 @@ namespace woj
         /**
          * Underlying array of blocks containing the bits
          */
-         alignas(std::hardware_destructive_interference_size) BlockType* m_data;
+         alignas(64) BlockType* m_data;
     };
 };
 

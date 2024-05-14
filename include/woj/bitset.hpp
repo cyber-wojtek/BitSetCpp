@@ -9,9 +9,6 @@
 #include <cstring>
 #include <type_traits>
 
-#include "BitSet.hpp"
-#include "BitSet.hpp"
-
 // Note: (std::numeric_limits<BlockType>::max)() is used instead of std::numeric_limits<BlockType>::max() because Windows.h defines a macro max which conflicts with std::numeric_limits<BlockType>::max()
 
 namespace woj

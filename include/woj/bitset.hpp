@@ -2872,7 +2872,6 @@ namespace woj
             void flip() const noexcept
             {
                 m_bitset.flip(m_index);
-                return *this;
             }
 
             /**

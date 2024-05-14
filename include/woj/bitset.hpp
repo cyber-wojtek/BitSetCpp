@@ -79,7 +79,7 @@ namespace woj
             /**
              * Empty constructor (only here to allow for some concepts to be executed)
              */
-            constexpr reference() noexcept : m_bitset(bitset<uint8_t, 8>(0b11111111)), m_index(0) {}
+            constexpr reference() noexcept : m_bitset(bitset<uint8_t, 8>(0b11111111)), m_index(*new size_type(0)) {}
 
             /**
              * Constructs a new reference instance based on the specified bitset and index
@@ -2791,11 +2791,6 @@ namespace woj
         {
         public:
             /**
-             * Empty constructor (only here to allow for some concepts to be executed)
-             */
-            reference() noexcept : m_bitset(dynamic_bitset<uint8_t>(8, 0b11111111)), m_index(0) {}
-
-            /**
              * Constructs a new reference instance based on the specified bitset and index
              * @param bitset The bitset instance to iterate over
              * @param index Index of the bit to start the iteration from (bit index)
@@ -4388,7 +4383,7 @@ namespace woj
          */
         [[nodiscard]] dynamic_bitset operator~() const noexcept
         {
-            dynamic_bitset result(size);
+            dynamic_bitset result(m_size);
             for (size_type i = 0; i < m_storage_size; ++i)
                 result.m_data[i] = ~m_data[i];
             return result;

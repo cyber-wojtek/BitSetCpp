@@ -14,28 +14,20 @@ int main()
   woj::bitset<uint32_t, 20> bitset;
 
   for (std::size_t i = 0; i < bitset.size(); ++i)
-  {
     bitset.set(i, rand() % 2);
-  }
 
-  std::cout << "bitset: ";
-  for (std::size_t i = 0; i < bitset.size(); ++i)
-    std::cout << bitset.test(i);
+  std::cout << "bitset:           " << bitset << '\n';
 
   woj::bitset<uint16_t, 20> bitset2(true);
 
   for (std::size_t i = rand() % 2; i < bitset.size(); i += 1 + rand() % 2)
     bitset2.clear(i);
 
-  std::cout << "\nbitset2: ";
-  for (std::size_t i = 0; i < bitset.size(); ++i)
-    std::cout << bitset2.test(i);
+  std::cout << "bitset2:          " << bitset2 << '\n';
 
   woj::bitset<uint64_t, 20> bitset_res = bitset & bitset2;
 
-  std::cout << "\nbitset & bitset2: ";
-  for (std::size_t i = 0; i < bitset.size(); ++i)
-    std::cout << bitset_res.test(i);
+  std::cout << "bitset & bitset2: " << bitset_res;
 
   return 0;
 }
@@ -56,37 +48,29 @@ bitset & bitset2: 00100000000000001010
 
 int main()
 {
-	std::size_t size;
+  srand(time(nullptr));
+  std::size_t size;
 
-	std::cout << "Enter the size of the bitset: ";
+  std::cout << "Enter the size of the bitset: ";
+  std::cin >> size;
 
-	std::cin >> size;
+  woj::dynamic_bitset<uint32_t> dynamic_bitset(size);
 
-	srand(time(nullptr));
+  for (std::size_t i = 0; i < size; ++i)
+    dynamic_bitset.set(i, rand() % 2);
 
-	woj::dynamic_bitset<uint32_t> dynamic_bitset(size);
+  std::cout << "dynamic_bitset:                   " << dynamic_bitset << '\n';
 
-	for (std::size_t i = 0; i < size; ++i)
-		dynamic_bitset.set(i, rand() % 2);
+  woj::dynamic_bitset<uint32_t> dynamic_bitset2(size);
 
-	std::cout << "dynamic_bitset:                   ";
-	for (std::size_t i = 0; i < dynamic_bitset.size(); ++i)
-		std::cout << dynamic_bitset.test(i);
+  for (std::size_t i = 0; i < size; ++i)
+    dynamic_bitset2.set(i, rand() % 2);
 
-	woj::dynamic_bitset<uint32_t> dynamic_bitset2(size);
+  std::cout << "dynamic_bitset2:                  " << dynamic_bitset2 << '\n';
 
-	for (std::size_t i = 0; i < size; ++i)
-		dynamic_bitset2.set(i, rand() % 2);
+  woj::dynamic_bitset<uint64_t> dynamic_bitset_res = dynamic_bitset | dynamic_bitset2;
 
-	std::cout << "\ndynamic_bitset2:                  ";
-	for (std::size_t i = 0; i < dynamic_bitset2.size(); ++i)
-		std::cout << dynamic_bitset2.test(i);
-
-	woj::dynamic_bitset<uint64_t> dynamic_bitset_res = dynamic_bitset | dynamic_bitset2;
-
-	std::cout << "\ndynamic_bitset | dynamic_bitset2: ";
-	for (std::size_t i = 0; i < dynamic_bitset.size(); ++i)
-		std::cout << dynamic_bitset_res.test(i);
+  std::cout << "dynamic_bitset | dynamic_bitset2: " << dynamic_bitset_res;
 
 	return 0;
 }

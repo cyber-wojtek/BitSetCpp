@@ -1,6 +1,6 @@
-# CppBitSet
+# Bitset classes for C++
 
-CppBitSet is an efficient, optimized C++ BitSet header class designed to provide high-performance operations for manipulating fixed-size sequences of bits.
+This project aims to be an efficient, optimized C++ BitSet header class designed to provide high-performance operations for manipulating fixed and dynamic size sequences of bits.
 
 ## Table of Contents
 - [Key Features](#key-features)
@@ -11,24 +11,23 @@ CppBitSet is an efficient, optimized C++ BitSet header class designed to provide
 
 
 ## Key Features
-- **Efficient and Optimized Operations:** CppBitSet prioritizes performance, providing heavily optimized read and write operations. It's designed to handle bit manipulation tasks with minimal overhead.
+- **Efficient and Optimized Operations:** this library prioritizes performance, providing heavily optimized read and write operations. It's designed to handle bit manipulation tasks with minimal overhead.
 - **Comprehensive Functionality:** Supports a wide range of operations, including iteration, bitwise operations (AND, OR, XOR, NOT), comparison, conversion to and from strings, and more.
 - **Iterators:** Iterator types (`iterator`, `const_iterator`, `reverse_iterator`, `const_reverse_iterator`) are provided for easy traversal and manipulation of bits within the bitset.
 - **Flexible Constructors:** Offers multiple constructors for initializing bitsets from bool values, block values, other bitset instances, C-style strings, pointers to strings, and `std::basic_string` instances.
-- **Dynamic-Size Version:** A dynamic-size version of the bitset class is also available, offering flexibility in handling variable-sized bit sequences.
+- **Fixed and Dynamic Size Support:** Both a fixed and dynamic size version of the bitset class is available, offering flexibility in handling variable-sized bit sequences.
 - **Main Classes:**
   - `bitset<BlockType, Size>`: Represents a fixed-size BitSet with a specified block type and size.
   - `dynamic_bitset<BlockType>`: Represents a dynamic-size BitSet with a specified block type.
   
 ## How To Use
-To use the CppBitSet library in your project, follow these steps:
+To use the this library in your project, follow these steps:
 1. **Download:** Download the newest available release package from the [releases page](https://github.com/cyber-wojtek/BitSetCpp/releases).
-2. **Integration:** Add the downloaded header file (`BitSet.hpp` or similar) to your project.
+2. **Integration:** Add the downloaded header file (`bitset.hpp` or similar) to your project.
 3. **Include:** Include the header file in your source files where you need to use the bitset functionality.
-4. **Usage:** Start using the `bitset` class in your code by creating instances, performing operations, and utilizing its features as needed.
+4. **Usage:** Start using the `bitset` or `dynamic_bitset` class in your code by creating instances, performing operations, and utilizing its features as needed.
 
-
-Here's a basic example of how to use CppBitSet:
+Here's a basic example of how to use this library:
 
 ```cpp
 #include "woj/bitset.hpp"
@@ -57,12 +56,12 @@ int main() {
 ```
 
 ## Concepts
-The library utilizes C++20 concepts for type checking and template constraints. Here are the key concepts used:
+The library utilizes C++20 concepts for type checking and template constraints. Here are the concepts used:
 - `unsigned_integer`: Checks if a type is an unsigned integer.
 - `char_type`: Checks if a type is a character type.
 
 ## Download
-You can download the CppBitSet library from the [GitHub releases page](https://github.com/cyber-wojtek/BitSetCpp/releases). Choose the appropriate release package for your project and download it to get started.
+You can download this library from the [GitHub releases page](https://github.com/cyber-wojtek/BitSetCpp/releases).
 
 ## License
-CppBitSet is distributed under the MIT License with an attribution clause. See the `LICENSE` file included with the library for more information about the licensing terms.
+This library is distributed under the MIT License with an attribution clause. See the `LICENSE` file for more information about the licensing terms.

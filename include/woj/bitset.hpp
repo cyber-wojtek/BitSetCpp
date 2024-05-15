@@ -32,13 +32,6 @@ namespace woj
 
     /**
      * Fixed-size BitSet class
-     * Naming used across documentation:
-     * bit value: may be either 1 (true) or 0 (false)
-     * bit index: is index of a value 1 (true) or 0 (false) in the bitset, e.g. BlockType=size_t, Size=100, bit index is value between (0-99)
-     * bit size/count: size in bits. e.g. 1 uint32_t holds 32 bits = 32 bit size/count
-     * block value: Is BlockType value, used to directly copy bits inside it. e.g. when BlockType=uint8_t, block value may be 0b10101010 \n
-     * (Visible order of bits is reversed order of the actual bits, e.g. 0b00001111 = 16, so it's lower 4 bits are set)\n
-     * block index: index of BlockType value, e.g. when BlockType=size_t, Size=128, block index is value between (0-1), because 128 bits fit into 2 size_t's
      * @tparam BlockType Type of block to use for bit storage (may be one of uint8_t, uint16_t, uint32_t, size_t, {unsigned _int128})
      * @tparam Size Size of bitset, in bits
      */
@@ -1801,7 +1794,7 @@ namespace woj
         // Utility functions
 
         /**
-         * Returns current dynamic_bitset instance as const to enable optimizations (use when iterating, using [] operator, ...)
+         * Returns current bitset instance as const to enable optimizations (use when iterating, using [] operator, ...)
          */
         [[nodiscard]] constexpr const bitset& as_const() const noexcept
         {
@@ -2759,12 +2752,6 @@ namespace woj
 
     /**
 	 * Dynamic-size BitSet class
-	 * Naming used across documentaion:
-	 * bit value: may be either 1 (true) or 0 (false)
-	 * bit index: is index of a value 1 (true) or 0 (false) in the bitset, e.g. BlockType=size_t, m_size=100, bit index is value between (0-99)
-	 * bit size/count: size in bits. e.g. 1 uint32_t holds 32 bits = 32 bit size/count
-	 * block value: Is BlockType value, used to directly copy bits inside it. e.g. when BlockType=uint8_t, block value may be 0b10101010 (Visible order of bits is reversed order of the actual bits)
-	 * block index: index of BlockType value, e.g. when BlockType=size_t, m_size=128, block index is value between (0-1), because 128 bits fit into 2 size_t's
 	 * @tparam BlockType Type of block to use for bit storage
 	 */
     template <unsigned_integer BlockType>
@@ -5709,7 +5696,7 @@ namespace woj
          * m_size of the bitset in bits
          */
         size_type m_size;
-
+        
         /**
          * Underlying array of blocks containing the bits
          */

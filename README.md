@@ -1,88 +1,68 @@
 # CppBitSet
-Efficient, optimized C++ BitSet class, that heavily prioritizes the performance.
 
-# How to use
+CppBitSet is an efficient, optimized C++ BitSet header class designed to provide high-performance operations for manipulating fixed-size sequences of bits.
 
-## woj::bitset
-```cpp
-#include <woj/bitset.hpp>
-#include <iostream>
+## Table of Contents
+- [Key Features](#key-features)
+- [How To Use](#how-to-use)
+- [Concepts](#concepts)
+- [Download](#download)
+- [License](#license)
 
-int main()
-{
-  srand(time(nullptr));
-  woj::bitset<uint32_t, 20> bitset;
 
-  for (std::size_t i = 0; i < bitset.size(); ++i)
-    bitset.set(i, rand() % 2);
+## Key Features
+- **Efficient and Optimized Operations:** CppBitSet prioritizes performance, providing heavily optimized read and write operations. It's designed to handle bit manipulation tasks with minimal overhead.
+- **Comprehensive Functionality:** Supports a wide range of operations, including iteration, bitwise operations (AND, OR, XOR, NOT), comparison, conversion to and from strings, and more.
+- **Iterators:** Iterator types (`iterator`, `const_iterator`, `reverse_iterator`, `const_reverse_iterator`) are provided for easy traversal and manipulation of bits within the bitset.
+- **Flexible Constructors:** Offers multiple constructors for initializing bitsets from bool values, block values, other bitset instances, C-style strings, pointers to strings, and `std::basic_string` instances.
+- **Dynamic-Size Version:** A dynamic-size version of the bitset class is also available, offering flexibility in handling variable-sized bit sequences.
+- **Main Classes:**
+  - `bitset<BlockType, Size>`: Represents a fixed-size BitSet with a specified block type and size.
+  - `dynamic_bitset<BlockType>`: Represents a dynamic-size BitSet with a specified block type.
+  
+## How To Use
+To use the CppBitSet library in your project, follow these steps:
+1. **Download:** Download the newest available release package from the [releases page](https://github.com/cyber-wojtek/BitSetCpp/releases).
+2. **Integration:** Add the downloaded header file (`BitSet.hpp` or similar) to your project.
+3. **Include:** Include the header file in your source files where you need to use the bitset functionality.
+4. **Usage:** Start using the `bitset` class in your code by creating instances, performing operations, and utilizing its features as needed.
 
-  std::cout << "bitset:           " << bitset << '\n';
 
-  woj::bitset<uint16_t, 20> bitset2(true);
-
-  for (std::size_t i = rand() % 2; i < bitset.size(); i += 1 + rand() % 2)
-    bitset2.clear(i);
-
-  std::cout << "bitset2:          " << bitset2 << '\n';
-
-  woj::bitset<uint64_t, 20> bitset_res = bitset & bitset2;
-
-  std::cout << "bitset & bitset2: " << bitset_res;
-
-  return 0;
-}
-```
-
-Possible result:
-```
-bitset:           01111110010101001011
-bitset2:          00100001000010101010
-bitset & bitset2: 00100000000000001010
-```
-
-## woj::dynamic_bitset
+Here's a basic example of how to use CppBitSet:
 
 ```cpp
-#include <woj/bitset.hpp>
+#include "woj/bitset.hpp"
 #include <iostream>
 
-int main()
-{
-  srand(time(nullptr));
-  std::size_t size;
+int main() {
+    // Create a bitset with a fixed size of 10 bits, initialized with all zeros
+    woj::bitset<uint16_t, 10> myBitSet;
 
-  std::cout << "Enter the size of the bitset: ";
-  std::cin >> size;
+    // Set bits using dedicated set() function
+    myBitSet.set(1);  // Set the bit at index 1 to true
 
-  woj::dynamic_bitset<uint32_t> dynamic_bitset(size);
+    // Bit indexing is supported as well
+    myBitSet[3] = true;  // Set the bit at index 3 to true
+    myBitSet[5] = true;  // Set the bit at index 5 to true
 
-  for (std::size_t i = 0; i < size; ++i)
-    dynamic_bitset.set(i, rand() % 2);
+    // Print the bitset
+    std::cout << "Bitset: " << myBitSet << '\n';
 
-  std::cout << "dynamic_bitset:                   " << dynamic_bitset << '\n';
+    // Perform bitwise operations, comparisons, etc.
+    // ...
 
-  woj::dynamic_bitset<uint32_t> dynamic_bitset2(size);
-
-  for (std::size_t i = 0; i < size; ++i)
-    dynamic_bitset2.set(i, rand() % 2);
-
-  std::cout << "dynamic_bitset2:                  " << dynamic_bitset2 << '\n';
-
-  woj::dynamic_bitset<uint64_t> dynamic_bitset_res = dynamic_bitset | dynamic_bitset2;
-
-  std::cout << "dynamic_bitset | dynamic_bitset2: " << dynamic_bitset_res;
-
-	return 0;
+    return 0;
 }
-```
-Possible input:
-```
-Enter the size of the bitset: 20
+
 ```
 
-Possible result:
-```
-dynamic_bitset:                   10101001100111100001
-dynamic_bitset2:                  11110000100000011110
-dynamic_bitset | dynamic_bitset2: 11111001100111111111
-```
+## Concepts
+The library utilizes C++20 concepts for type checking and template constraints. Here are the key concepts used:
+- `unsigned_integer`: Checks if a type is an unsigned integer.
+- `char_type`: Checks if a type is a character type.
+
+## Download
+You can download the CppBitSet library from the [GitHub releases page](https://github.com/cyber-wojtek/BitSetCpp/releases). Choose the appropriate release package for your project and download it to get started.
+
+## License
+CppBitSet is distributed under the MIT License with an attribution clause. See the `LICENSE` file included with the library for more information about the licensing terms.

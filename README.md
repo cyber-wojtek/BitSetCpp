@@ -11,11 +11,11 @@ This project aims to be an efficient, optimized C++ BitSet header class designed
 
 
 ## Key Features
-- **Efficient and Optimized Operations:** this library prioritizes performance, providing heavily optimized read and write operations. It's designed to handle bit manipulation tasks with minimal overhead.
+- **Efficient and Optimized Operations:** Performance is prioritized, providing heavily optimized read and write operations. It's designed to handle bit manipulation tasks as efficiently as possible.
 - **Comprehensive Functionality:** Supports a wide range of operations, including iteration, bitwise operations (AND, OR, XOR, NOT), comparison, conversion to and from strings, and more.
 - **Iterators:** Iterator types (`iterator`, `const_iterator`, `reverse_iterator`, `const_reverse_iterator`) are provided for easy traversal and manipulation of bits within the bitset.
-- **Flexible Constructors:** Offers multiple constructors for initializing bitsets from bool values, block values, other bitset instances, C-style strings, pointers to strings, and `std::basic_string` instances.
-- **Fixed and Dynamic Size Support:** Both a fixed and dynamic size version of the bitset class is available, offering flexibility in handling variable-sized bit sequences.
+- **Flexible Constructors:** Offers multiple constructors for initializing bitsets from other bitset instances and C and C++ style strings.
+- **Fixed and Dynamic Size Support:** Both a fixed and dynamic size version of the bitset class is available.
 - **Main Classes:**
   - `bitset<BlockType, Size>`: Represents a fixed-size BitSet with a specified block type and size.
   - `dynamic_bitset<BlockType>`: Represents a dynamic-size BitSet with a specified block type.

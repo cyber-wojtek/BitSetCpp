@@ -55,7 +55,7 @@ int main() {
 
 ```
 
-## Documentaion/Examples
+## Documentation/Examples
 Full documentation of library's features and further examples can be found oin the [documentation](#)
 
 ## Download

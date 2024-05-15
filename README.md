@@ -1,4 +1,4 @@
-# Bitset classes for C++
+# Bitset class for C++
 
 This project aims to be an efficient, optimized C++ BitSet header class designed to provide high-performance operations for manipulating fixed and dynamic size sequences of bits.
 

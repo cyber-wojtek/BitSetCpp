@@ -55,7 +55,7 @@ int main() {
 
 ```
 
-## Documentation/Examples
+## Documentation/Examples <a name="documentation-examples"></a>
 Full documentation of library's features and further examples can be found oin the [documentation](#)
 
 ## Download

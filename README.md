@@ -5,7 +5,7 @@ This project aims to be an efficient, optimized C++ BitSet header class designed
 ## Table of Contents
 - [Key Features](#key-features)
 - [How To Use](#how-to-use)
-- [Concepts](#concepts)
+- [Documentation/Examples](#concepts)
 - [Download](#download)
 - [License](#license)
 
@@ -55,10 +55,8 @@ int main() {
 
 ```
 
-## Concepts
-The library utilizes C++20 concepts for type checking and template constraints. Here are the concepts used:
-- `unsigned_integer`: Checks if a type is an unsigned integer.
-- `char_type`: Checks if a type is a character type.
+## Documentaion/Examples
+Full documentation of library's features and further examples can be found oin the [documentation](#)
 
 ## Download
 You can download this library from the [GitHub releases page](https://github.com/cyber-wojtek/BitSetCpp/releases).

@@ -112,7 +112,7 @@ namespace woj
              * Assignment operator
              * @param value Value to set the bit to (bit value)
              */
-            constexpr reference& operator=(const bool& value) noexcept
+            constexpr reference& operator=(const bool value) noexcept
             {
                 m_bitset.set(m_index, value);
                 return *this;
@@ -132,7 +132,7 @@ namespace woj
              * Bitwise AND assignment operator
              * @param value Value to AND the bit with (bit value)
              */
-            constexpr reference& operator&=(const bool& value) const noexcept
+            constexpr reference& operator&=(const bool value) const noexcept
             {
                 m_bitset.set(m_index, m_bitset.test(m_index) & value);
                 return *this;
@@ -142,7 +142,7 @@ namespace woj
              * Bitwise OR assignment operator
              * @param value Value to OR the bit with (bit value)
              */
-            constexpr reference& operator|=(const bool& value) const noexcept
+            constexpr reference& operator|=(const bool value) const noexcept
             {
                 m_bitset.set(m_index, m_bitset.test(m_index) | value);
                 return *this;
@@ -152,7 +152,7 @@ namespace woj
              * Bitwise XOR assignment operator
              * @param value Value to XOR the bit with (bit value)
              */
-            constexpr reference& operator^=(const bool& value) const noexcept
+            constexpr reference& operator^=(const bool value) const noexcept
             {
                 m_bitset.set(m_index, m_bitset.test(m_index) ^ value);
                 return *this;
@@ -170,7 +170,7 @@ namespace woj
              * Set the bit at the current index to value
              * @param value Value to set the bit to (bit value)
              */
-            constexpr void set(const bool& value = true) const noexcept
+            constexpr void set(const bool value = true) const noexcept
             {
 	            m_bitset.set(m_index, value);
 			}
@@ -1057,7 +1057,7 @@ namespace woj
          * @param val Bool value to fill the bitset with (bit value)
          */
         template <typename U = BlockType> requires (!std::is_same_v<bool, std::remove_cvref_t<U>> && !std::is_pointer_v<std::remove_cvref_t<U>> && !std::is_array_v<std::remove_cvref_t<U>>)
-        explicit constexpr bitset(const bool& val)
+        explicit constexpr bitset(const bool val)
         {
             fill(val);
         }
@@ -1934,7 +1934,7 @@ namespace woj
          * @param value Value to set the bit to (bit value)
          * @param index Index of the bit to set (bit index)
          */
-        constexpr void set(const size_type& index, const bool& value) noexcept
+        constexpr void set(const size_type& index, const bool value) noexcept
         {
             if (value)
                 m_data[index / m_block_size] |= BlockType{1} << index % m_block_size;
@@ -1964,7 +1964,7 @@ namespace woj
          * Fills all the bits with the specified value
          * @param value Value to fill the bits with (bit value)
          */
-        constexpr void fill(const bool& value) noexcept
+        constexpr void fill(const bool value) noexcept
         {
             if (std::is_constant_evaluated())
             {
@@ -2008,7 +2008,7 @@ namespace woj
          * @param value Value to fill the bits with (bit value)
          * @param end End of the range to fill (bit index)
          */
-        constexpr void fill_range(const size_type& end, const bool& value) noexcept
+        constexpr void fill_range(const size_type& end, const bool value) noexcept
         {
             if (std::is_constant_evaluated()) 
             {
@@ -2081,7 +2081,7 @@ namespace woj
          * @param begin Begin of the range to fill (bit index)
          * @param end End of the range to fill (bit index)
          */
-        constexpr void fill_range(const size_type& begin, const size_type& end, const bool& value) noexcept
+        constexpr void fill_range(const size_type& begin, const size_type& end, const bool value) noexcept
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
@@ -2206,7 +2206,7 @@ namespace woj
          * @param end End of the range to fill (bit index)
          * @param step Step size between the bits to fill (bit step)
          */
-        constexpr void fill_range(const size_type& begin, const size_type& end, const size_type& step, const bool& value) noexcept
+        constexpr void fill_range(const size_type& begin, const size_type& end, const size_type& step, const bool value) noexcept
         {
             for (size_type i = begin; i < end; i += step)
             {
@@ -2244,7 +2244,7 @@ namespace woj
         /**
          * !!! W.I.P. - Does not function correctly at the moment !!!\n
 		 */
-        constexpr void fill_range_optimized(const size_type& begin, const size_type& end, const size_type& step, const bool& value) noexcept
+        constexpr void fill_range_optimized(const size_type& begin, const size_type& end, const size_type& step, const bool value) noexcept
         {
             // Initialize variables
             size_type blocks_size, current_block = begin / m_block_size + 1 + step / m_block_size, current_offset = 0;
@@ -2822,7 +2822,7 @@ namespace woj
              * Assignment operator
              * @param value Value to set the bit to (bit value)
              */
-            reference& operator=(const bool& value) noexcept
+            reference& operator=(const bool value) noexcept
             {
                 m_bitset.set(m_index, value);
                 return *this;
@@ -2842,7 +2842,7 @@ namespace woj
              * Bitwise AND assignment operator
              * @param value Value to AND the bit with (bit value)
              */
-            reference& operator&=(const bool& value) const noexcept
+            reference& operator&=(const bool value) const noexcept
             {
                 m_bitset.set(m_index, m_bitset.test(m_index) & value);
                 return *this;
@@ -2852,7 +2852,7 @@ namespace woj
              * Bitwise OR assignment operator
              * @param value Value to OR the bit with (bit value)
              */
-            reference& operator|=(const bool& value) const noexcept
+            reference& operator|=(const bool value) const noexcept
             {
                 m_bitset.set(m_index, m_bitset.test(m_index) | value);
                 return *this;
@@ -2862,7 +2862,7 @@ namespace woj
              * Bitwise XOR assignment operator
              * @param value Value to XOR the bit with (bit value)
              */
-            reference& operator^=(const bool& value) const noexcept
+            reference& operator^=(const bool value) const noexcept
             {
                 m_bitset.set(m_index, m_bitset.test(m_index) ^ value);
                 return *this;
@@ -2880,7 +2880,7 @@ namespace woj
              * Set the bit at the current index to value
              * @param value Value to set the bit to (bit value)
              */
-            void set(const bool& value = true) const noexcept
+            void set(const bool value = true) const noexcept
             {
                 m_bitset.set(m_index, value);
             }
@@ -3777,7 +3777,7 @@ namespace woj
          * @param val Bool value to fill the bitset with (bit value)
          */
         template <unsigned_integer U = std::remove_cvref_t<BlockType>> requires (!std::is_same_v<bool, U> && !std::is_pointer_v<U> && !std::is_array_v<U>)
-        explicit dynamic_bitset(const size_type& size, const bool& val) noexcept : m_partial_size(size % m_block_size), m_storage_size(size / m_block_size + !!m_partial_size), m_size(size), m_data(new BlockType[m_storage_size])
+        explicit dynamic_bitset(const size_type& size, const bool val) noexcept : m_partial_size(size % m_block_size), m_storage_size(size / m_block_size + !!m_partial_size), m_size(size), m_data(new BlockType[m_storage_size])
         {
 	        fill(val);
 		}
@@ -4688,7 +4688,7 @@ namespace woj
          * @param value Value to set the bit to (bit value)
          * @param index Index of the bit to set (bit index)
          */
-        void set(const size_type& index, const bool& value) noexcept
+        void set(const size_type& index, const bool value) noexcept
         {
             if (value)
                 m_data[index / m_block_size] |= BlockType{ 1 } << index % m_block_size;
@@ -4718,7 +4718,7 @@ namespace woj
          * Fills all the bits with the specified value
          * @param value Value to fill the bits with (bit value)
          */
-        void fill(const bool& value) noexcept
+        void fill(const bool value) noexcept
         {
             ::memset(m_data, value ? (std::numeric_limits<BlockType>::max)() : 0, m_storage_size * sizeof(BlockType));
         }
@@ -4744,7 +4744,7 @@ namespace woj
          * @param value Value to fill the bits with (bit value)
          * @param end End of the range to fill (bit index)
          */
-        void fill(const size_type& end, const bool& value) noexcept
+        void fill(const size_type& end, const bool value) noexcept
         {
             ::memset(m_data, value ? 255u : 0, end / m_block_size * sizeof(BlockType));
 
@@ -4799,7 +4799,7 @@ namespace woj
          * @param begin Begin of the range to fill (bit index)
          * @param end End of the range to fill (bit index)
          */
-        void fill_range(const size_type& begin, const size_type& end, const bool& value) noexcept
+        void fill_range(const size_type& begin, const size_type& end, const bool value) noexcept
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
@@ -4907,7 +4907,7 @@ namespace woj
          * @param end End of the range to fill (bit index)
          * @param step Step size between the bits to fill (bit step)
          */
-        void fill_range(const size_type& begin, const size_type& end, const size_type& step, const bool& value) noexcept
+        void fill_range(const size_type& begin, const size_type& end, const size_type& step, const bool value) noexcept
         {
             for (size_type i = begin; i < end; i += step)
             {
@@ -4945,7 +4945,7 @@ namespace woj
         /**
          * !!! W.I.P. - Does not function correctly at the moment !!!
          */
-        void fill_range_optimized(const size_type& begin, const size_type& end, const size_type& step, const bool& value) noexcept
+        void fill_range_optimized(const size_type& begin, const size_type& end, const size_type& step, const bool value) noexcept
         {
             // Initialize variables
             size_type blocks_size, current_block = begin / m_block_size + 1 + step / m_block_size, current_offset = 0;
@@ -5493,7 +5493,7 @@ namespace woj
 		 * Pushes back bit value to the bitset
 		 * @param value Value to push back (bit value)
 		 */
-        void push_back(const bool& value)
+        void push_back(const bool value)
         {
             if (!(m_size++ % m_block_size))
             {
@@ -5552,7 +5552,7 @@ namespace woj
          * @param index Index to insert the value at (bit index)
          * @param value Value to insert (bit value)
          */
-        void insert(const size_type& index, const bool& value)
+        void insert(const size_type& index, const bool value)
         {
             if (index == m_size)
             {

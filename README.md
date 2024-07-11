@@ -56,7 +56,7 @@ int main() {
 ```
 
 ## Documentation/Examples <a name="documentation-examples"></a>
-Full documentation of the library and more examples can be found [here](#)
+Full documentation of the library and more examples can be found [here](https://cyber-wojtek.github.io/BitSetCpp/html/index.html)
 
 ## Download
 You can download this library from the [GitHub releases page](https://github.com/cyber-wojtek/BitSetCpp/releases).

@@ -2018,7 +2018,7 @@ namespace woj
             else 
                 ::memset(m_data, value ? 255u : 0, end / m_block_size * sizeof(BlockType));
             
-            if (end % m_block_size)
+            if (end % m_block_size) [[likely]]
             {
                 if (value)
                 {
@@ -2047,7 +2047,7 @@ namespace woj
 			else
 				::memset(m_data, 255u, end / m_block_size * sizeof(BlockType));
 
-        	if (end % m_block_size)
+        	if (end % m_block_size) [[likely]]
             {
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] |= BlockType{1} << i;
@@ -2068,7 +2068,7 @@ namespace woj
 			else
 				::memset(m_data, 0, end / m_block_size * sizeof(BlockType));
 
-        	if (end % m_block_size)
+        	if (end % m_block_size) [[likely]]
             {
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] &= ~(BlockType{1} << i);
@@ -2085,7 +2085,7 @@ namespace woj
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
-            if (begin % m_block_size)
+            if (begin % m_block_size) [[likely]]
             {
                 const uint16_t end_bit = (begin / m_block_size == end / m_block_size) ? end % m_block_size : m_block_size;
                 if (value)
@@ -2103,7 +2103,7 @@ namespace woj
                 to_add = 0;
 
             // set the end block if the end is not aligned with the block size
-            if (end % m_block_size && begin / m_block_size != end / m_block_size)
+            if (end % m_block_size && begin / m_block_size != end / m_block_size) [[likely]]
             {
                 if (value)
                 {
@@ -2137,7 +2137,7 @@ namespace woj
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
-            if (begin % m_block_size)
+            if (begin % m_block_size) [[likely]]
             {
                 const uint16_t end_bit = begin / m_block_size == end / m_block_size ? end % m_block_size : m_block_size;
                 for (uint16_t i = begin % m_block_size; i < end_bit; ++i)
@@ -2147,7 +2147,7 @@ namespace woj
                 to_add = 0;
 
             // set the end block if the end is not aligned with the block size
-            if (end % m_block_size && begin / m_block_size != end / m_block_size)
+            if (end % m_block_size && begin / m_block_size != end / m_block_size) [[likely]]
             {
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] |= BlockType{1} << i;
@@ -2172,7 +2172,7 @@ namespace woj
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
-            if (begin % m_block_size)
+            if (begin % m_block_size) [[likely]]
             {
                 const uint16_t end_bit = begin / m_block_size == end / m_block_size ? end % m_block_size : m_block_size;
                 for (uint16_t i = begin % m_block_size; i < end_bit; ++i)
@@ -2182,7 +2182,7 @@ namespace woj
                 to_add = 0;
 
             // set the end block if the end is not aligned with the block size
-            if (end % m_block_size && begin / m_block_size != end / m_block_size)
+            if (end % m_block_size && begin / m_block_size != end / m_block_size) [[likely]]
             {
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] &= ~(BlockType{1} << i);
@@ -2516,7 +2516,7 @@ namespace woj
         constexpr void flip_range(const size_type& begin, const size_type& end) noexcept
         {
             size_type to_add = 1;
-            if (begin % m_block_size)
+            if (begin % m_block_size) [[likely]]
             {
                 for (uint16_t i = begin % m_block_size; i < m_block_size; ++i)
                     m_data[begin / m_block_size] ^= BlockType{1} << i;
@@ -2527,7 +2527,7 @@ namespace woj
             for (size_type i = begin / m_block_size + to_add; i < end / m_block_size; ++i)
                 m_data[i] = ~m_data[i];
 
-            if (end % m_block_size)
+            if (end % m_block_size) [[likely]]
             {
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] ^= BlockType{1} << i;
@@ -2686,15 +2686,6 @@ namespace woj
                 }
             }
             return true;
-        }
-
-        /**
-         * Checks if all bits are reseted (none are set)
-         * @return true if all bits are reseted, false otherwise
-         */
-        [[nodiscard]] constexpr bool all_reset() const noexcept
-        {
-            return none();
         }
 
         /**
@@ -4748,7 +4739,7 @@ namespace woj
         {
             ::memset(m_data, value ? 255u : 0, end / m_block_size * sizeof(BlockType));
 
-            if (end % m_block_size)
+            if (end % m_block_size) [[likely]]
             {
                 if (value)
                 {
@@ -4771,7 +4762,7 @@ namespace woj
         {
             ::memset(m_data, 255u, end / m_block_size * sizeof(BlockType));
 
-            if (end % m_block_size)
+            if (end % m_block_size) [[likely]]
             {
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] |= BlockType{ 1 } << i;
@@ -4786,7 +4777,7 @@ namespace woj
         {
             ::memset(m_data, 0, end / m_block_size * sizeof(BlockType));
 
-            if (end % m_block_size)
+            if (end % m_block_size) [[likely]]
             {
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] &= ~(BlockType{ 1 } << i);
@@ -4803,7 +4794,7 @@ namespace woj
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
-            if (begin % m_block_size)
+            if (begin % m_block_size) [[likely]]
             {
                 const uint16_t end_bit = (begin / m_block_size == end / m_block_size) ? end % m_block_size : m_block_size;
                 if (value)
@@ -4821,7 +4812,7 @@ namespace woj
                 to_add = 0;
 
             // set the end block if the end is not aligned with the block size
-            if (end % m_block_size && begin / m_block_size != end / m_block_size)
+            if (end % m_block_size && begin / m_block_size != end / m_block_size) [[likely]]
             {
                 if (value)
                 {
@@ -4849,7 +4840,7 @@ namespace woj
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
-            if (begin % m_block_size)
+            if (begin % m_block_size) [[likely]]
             {
                 const uint16_t end_bit = begin / m_block_size == end / m_block_size ? end % m_block_size : m_block_size;
                 for (uint16_t i = begin % m_block_size; i < end_bit; ++i)
@@ -4859,8 +4850,8 @@ namespace woj
                 to_add = 0;
 
             // set the end block if the end is not aligned with the block size
-            if (end % m_block_size && begin / m_block_size != end / m_block_size)
-            {
+            if (end % m_block_size && begin / m_block_size != end / m_block_size) [[likely]]
+            { 
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] |= BlockType{ 1 } << i;
             }
@@ -4879,7 +4870,7 @@ namespace woj
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
-            if (begin % m_block_size)
+            if (begin % m_block_size) [[likely]]
             {
                 const uint16_t end_bit = begin / m_block_size == end / m_block_size ? end % m_block_size : m_block_size;
                 for (uint16_t i = begin % m_block_size; i < end_bit; ++i)
@@ -4889,7 +4880,7 @@ namespace woj
                 to_add = 0;
 
             // set the end block if the end is not aligned with the block size
-            if (end % m_block_size && begin / m_block_size != end / m_block_size)
+            if (end % m_block_size && begin / m_block_size != end / m_block_size) [[likely]]
             {
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] &= ~(BlockType{ 1 } << i);
@@ -5232,7 +5223,7 @@ namespace woj
         void flip_range(const size_type& begin, const size_type& end) noexcept
         {
             size_type to_add = 1;
-            if (begin % m_block_size)
+            if (begin % m_block_size) [[likely]]
             {
                 for (uint16_t i = begin % m_block_size; i < m_block_size; ++i)
                     m_data[begin / m_block_size] ^= BlockType{ 1 } << i;
@@ -5243,7 +5234,7 @@ namespace woj
             for (size_type i = begin / m_block_size + to_add; i < end / m_block_size; ++i)
                 m_data[i] = ~m_data[i];
 
-            if (end % m_block_size)
+            if (end % m_block_size) [[likely]]
             {
                 for (uint16_t i = 0; i < end % m_block_size; ++i)
                     m_data[end / m_block_size] ^= BlockType{ 1 } << i;

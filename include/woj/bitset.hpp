@@ -4744,7 +4744,7 @@ namespace woj
          * @param value Value to fill the bits with (bit value)
          * @param end End of the range to fill (bit index)
          */
-        void fill(const size_type& end, const bool value) noexcept
+        void fill_range(const size_type& end, const bool value) noexcept
         {
             ::memset(m_data, value ? 255u : 0, end / m_block_size * sizeof(BlockType));
 

@@ -32,7 +32,7 @@ namespace woj
 
     /**
      * Fixed-size BitSet class
-     * @tparam BlockType Type of block to use for bit storage (may be one of uint8_t, uint16_t, uint32_t, size_t, {unsigned _int128})
+     * @tparam BlockType Type of block to use for bit storage (may be one of unsigned integer types)
      * @tparam Size Size of bitset, in bits
      */
     template <unsigned_integer BlockType, std::size_t Size>
@@ -80,7 +80,7 @@ namespace woj
             /**
              * Empty constructor (only here to allow for some concepts to be executed)
              */
-            constexpr reference() noexcept : m_bitset(bitset<uint8_t, 8>(0b11111111)), m_index(*new size_type(0)) {}
+            constexpr reference() noexcept : m_bitset(*static_cast<bitset*>(nullptr)), m_index(*static_cast<size_type*>(nullptr)) {}
 
             /**
              * Constructs a new reference instance based on the specified bitset and index
@@ -178,9 +178,9 @@ namespace woj
             /**
              * Reset the bit at the current index to value
              */
-            constexpr void clear() const noexcept
+            constexpr void reset() const noexcept
             {
-                m_bitset.clear(m_index);
+                m_bitset.reset(m_index);
             }
 
             bitset& m_bitset;
@@ -1199,7 +1199,7 @@ namespace woj
         template <unsigned_integer OtherBlockType, size_type OtherSize> requires (std::convertible_to<OtherBlockType, BlockType> && !std::is_same_v<BlockType, OtherBlockType>)
         constexpr bitset& operator=(const bitset<OtherBlockType, OtherSize>& other) noexcept
         {
-            clear();
+            reset();
             _from_other<OtherBlockType, OtherSize>(other);
             return *this;
         }
@@ -1213,7 +1213,7 @@ namespace woj
         template <char_type Elem, size_type StrSize>
         constexpr bitset& operator=(const Elem(&c_str)[StrSize]) noexcept
         {
-            clear();
+            reset();
             _from_c_string<Elem, StrSize>(c_str, '1');
             return *this;
         }
@@ -1227,7 +1227,7 @@ namespace woj
         template <typename PtrArr = const char*, char_type Elem = std::remove_cvref_t<std::remove_pointer_t<std::remove_cvref_t<PtrArr>>>> requires (std::is_pointer_v<PtrArr> && !std::is_array_v<PtrArr>)
         bitset& operator=(PtrArr c_str) noexcept
         {
-            clear();
+            reset();
             _from_c_string<PtrArr, Elem>(c_str, '1');
             return *this;
         }
@@ -1240,7 +1240,7 @@ namespace woj
         template <char_type Elem>
         constexpr bitset& operator=(const std::basic_string<Elem>& str) noexcept
         {
-            clear();
+            reset();
             _from_string<Elem>(str, '1');
             return *this;
         }
@@ -1440,7 +1440,7 @@ namespace woj
         constexpr bitset& operator>>=(const size_type& shift) noexcept
         {
             if (shift > m_block_size)
-                clear();
+                reset();
             else
             {
                 // Number of blocks to shift
@@ -1653,7 +1653,7 @@ namespace woj
 		 * bitset to string conversion function
 		 * @tparam Elem Type of character in the array
 		 * @param set_chr Character to represent set bits
-		 * @param rst_chr Character to represent clear bits
+		 * @param rst_chr Character to represent reset bits
 		 * @return String representation of the bitset
 		 */
         template <char_type Elem = char>
@@ -1727,7 +1727,7 @@ namespace woj
         /**
          * bitset to C string conversion function
          * @param set_chr Character to represent set bits
-         * @param rst_chr Character to represent clear bits
+         * @param rst_chr Character to represent reset bits
          * @tparam Elem Type of character in the array
          * @return C string representation of the bitset
          */
@@ -1757,7 +1757,7 @@ namespace woj
         template <unsigned_integer T>
         constexpr void from_integer(const T& value) noexcept
         {
-            clear();
+            reset();
             if (sizeof(T) <= sizeof(BlockType))
             {
                 m_data[0] = m_data[0] & ~static_cast<BlockType>((std::numeric_limits<T>::max)()) | value;
@@ -1953,9 +1953,9 @@ namespace woj
 
         /**
          * Sets the bit at the specified index to 0 (false)
-         * @param index Index of the bit to clear (bit index)
+         * @param index Index of the bit to reset (bit index)
          */
-        constexpr void clear(const size_type& index) noexcept
+        constexpr void reset(const size_type& index) noexcept
         {
             m_data[index / m_block_size] &= ~(BlockType{1} << index % m_block_size);
         }
@@ -1992,7 +1992,7 @@ namespace woj
         /**
          * Sets all the bits to 0 (false)
          */
-        constexpr void clear() noexcept
+        constexpr void reset() noexcept
         {
             if (std::is_constant_evaluated())
             {
@@ -2058,7 +2058,7 @@ namespace woj
          * Sets all the bits in the specified range to 0 (false)
          * @param end End of the range to set (bit index)
          */
-        constexpr void clear_range(const size_type& end) noexcept
+        constexpr void reset_range(const size_type& end) noexcept
         {
             if (std::is_constant_evaluated())
             {
@@ -2168,7 +2168,7 @@ namespace woj
          * @param begin Begin of the range to fill (bit index)
          * @param end End of the range to fill (bit index)
          */
-        constexpr void clear_range(const size_type& begin, const size_type& end) noexcept
+        constexpr void reset_range(const size_type& begin, const size_type& end) noexcept
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
@@ -2235,7 +2235,7 @@ namespace woj
          * @param end End of the range to fill (bit index)
          * @param step Step size between the bits to fill (bit step)
          */
-        constexpr void clear_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
+        constexpr void reset_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
         {
             for (size_type i = begin; i < end; i += step)
                 m_data[i / m_block_size] &= ~(BlockType{1} << i % m_block_size);
@@ -2358,9 +2358,9 @@ namespace woj
 
         /**
          * Sets the block at the specified index to 0 (all bits set to 0)
-         * @param index Index of the block to clear (block index)
+         * @param index Index of the block to reset (block index)
          */
-        constexpr void clear_block(const size_type& index) noexcept
+        constexpr void reset_block(const size_type& index) noexcept
         {
             m_data[index] = 0u;
         }
@@ -2389,7 +2389,7 @@ namespace woj
 		 * Sets all the blocks in the specified range to 0
 		 * @param end End of the range to fill (block index)
 		 */
-        constexpr void clear_block_range(const size_type& end) noexcept
+        constexpr void reset_block_range(const size_type& end) noexcept
         {
             for (size_type i = 0; i < end; ++i)
                 m_data[i] = 0;
@@ -2422,7 +2422,7 @@ namespace woj
 		 * @param begin begin of the range to fill (block index)
 		 * @param end End of the range to fill (block index)
 		 */
-        constexpr void clear_block_range(const size_type& begin, const size_type& end) noexcept
+        constexpr void reset_block_range(const size_type& begin, const size_type& end) noexcept
         {
             for (size_type i = begin; i < end; ++i)
                 m_data[i] = 0;
@@ -2458,7 +2458,7 @@ namespace woj
 		 * @param end End of the range to fill (block index)
 		 * @param step Step size between the bits to fill (block step)
 		 */
-        constexpr void clear_block_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
+        constexpr void reset_block_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
         {
             for (size_type i = begin; i < end; i += step)
                 m_data[i] = 0;
@@ -2689,10 +2689,10 @@ namespace woj
         }
 
         /**
-         * Checks if all bits are cleared (none are set)
-         * @return true if all bits are cleared, false otherwise
+         * Checks if all bits are reseted (none are set)
+         * @return true if all bits are reseted, false otherwise
          */
-        [[nodiscard]] constexpr bool all_clear() const noexcept
+        [[nodiscard]] constexpr bool all_reset() const noexcept
         {
             return none();
         }
@@ -2752,7 +2752,7 @@ namespace woj
 
     /**
 	 * Dynamic-size BitSet class
-	 * @tparam BlockType Type of block to use for bit storage
+	 * @tparam BlockType Type of block to use for bit storage (may be one of unsigned integer types)
 	 */
     template <unsigned_integer BlockType>
     class dynamic_bitset
@@ -2888,9 +2888,9 @@ namespace woj
             /**
              * Reset the bit at the current index to value
              */
-            void clear() const noexcept
+            void reset() const noexcept
             {
-                m_bitset.clear(m_index);
+                m_bitset.reset(m_index);
             }
 
             dynamic_bitset& m_bitset;
@@ -3767,7 +3767,7 @@ namespace woj
 		 */
         explicit dynamic_bitset(const size_type& size) noexcept : m_partial_size(size % m_block_size), m_storage_size(size / m_block_size + !!m_partial_size), m_size(size), m_data(new BlockType[m_storage_size])
         {
-            clear();
+            reset();
         }
 
         /**
@@ -3832,7 +3832,7 @@ namespace woj
         template <unsigned_integer OtherBlockType> requires (std::convertible_to<OtherBlockType, BlockType> && !std::is_same_v<BlockType, OtherBlockType>)
     	dynamic_bitset(const dynamic_bitset<OtherBlockType>& other) noexcept : m_partial_size(other.m_size % m_block_size), m_storage_size(static_cast<size_type>(static_cast<double>(sizeof(OtherBlockType) / sizeof(BlockType)) * other.m_storage_size + !!m_partial_size)), m_size(other.m_size), m_data(new BlockType[m_storage_size])
         {
-            clear();
+            reset();
             _from_other<OtherBlockType>(other);
         }
 
@@ -3845,7 +3845,7 @@ namespace woj
         template <unsigned_integer OtherBlockType> requires (std::convertible_to<OtherBlockType, BlockType> && !std::is_same_v<BlockType, OtherBlockType>)
         explicit dynamic_bitset(const size_type& size, const dynamic_bitset<OtherBlockType>& other) noexcept : m_partial_size(size % m_block_size), m_storage_size(size / sizeof(BlockType) + !!m_partial_size), m_size(size), m_data(new BlockType[m_storage_size])
         {
-            clear();
+            reset();
             _from_other<OtherBlockType>(other);
         }
 
@@ -3859,7 +3859,7 @@ namespace woj
         template <char_type Elem, size_type StrSize>
         dynamic_bitset(const Elem(&c_str)[StrSize], const Elem& set_chr = '1') noexcept : m_partial_size((StrSize - 1) % m_block_size), m_storage_size((StrSize - 1) / m_block_size + !!m_partial_size), m_size(StrSize - 1), m_data(new BlockType[m_storage_size])
         {
-            clear();
+            reset();
             _from_c_string<Elem, StrSize>(c_str, set_chr);
         }
 
@@ -3874,7 +3874,7 @@ namespace woj
         template <char_type Elem, size_type StrSize>
         explicit dynamic_bitset(const size_type& size, const Elem(&c_str)[StrSize], const Elem& set_chr = '1') noexcept : m_partial_size(size % m_block_size), m_storage_size(size / m_block_size + !!m_partial_size), m_size(size), m_data(new BlockType[m_storage_size])
         {
-            clear();
+            reset();
             _from_c_string<Elem, StrSize>(c_str, set_chr);
         }
 
@@ -3889,7 +3889,7 @@ namespace woj
         template <typename PtrArr = const char*, char_type Elem = std::remove_cvref_t<std::remove_pointer_t<std::remove_cvref_t<PtrArr>>>> requires (std::is_pointer_v<PtrArr> && !std::is_array_v<PtrArr>&& char_type<Elem>)
         explicit dynamic_bitset(const size_type& size, PtrArr c_str, const Elem& set_chr = '1') noexcept : m_partial_size(size % m_block_size), m_storage_size(size / m_block_size + !!m_partial_size), m_size(size), m_data(new BlockType[m_storage_size])
         {
-            clear();
+            reset();
             _from_c_string<PtrArr, Elem>(c_str, set_chr);
         }
 
@@ -3902,7 +3902,7 @@ namespace woj
         template <char_type Elem>
         dynamic_bitset(const std::basic_string<Elem>& str, const Elem& set_chr = '1') noexcept : m_partial_size(str.size() % m_block_size), m_storage_size(str.size() / m_block_size + !!m_partial_size), m_size(str.size()), m_data(new BlockType[m_storage_size])
         {
-            clear();
+            reset();
             _from_string(str, set_chr);
         }
 
@@ -3917,7 +3917,7 @@ namespace woj
         template <typename Elem>
         explicit dynamic_bitset(const size_type& size, const std::basic_string<Elem>& str, const Elem& set_chr = '1') noexcept : m_partial_size(size % m_block_size), m_storage_size(size / m_block_size + !!m_partial_size), m_size(size), m_data(new BlockType[m_storage_size])
         {
-            clear();
+            reset();
             _from_string(str, set_chr);
         }
 
@@ -3999,7 +3999,7 @@ namespace woj
          */
         dynamic_bitset& operator=(const dynamic_bitset& other) noexcept
         {
-            clear();
+            reset();
             std::copy(other.m_data, other.m_data + (std::min)(m_storage_size, other.m_storage_size), m_data);
             return *this;
         }
@@ -4065,7 +4065,7 @@ namespace woj
         template <unsigned_integer OtherBlockType> requires (std::convertible_to<OtherBlockType, BlockType> && !std::is_same_v<BlockType, OtherBlockType>)
         void _from_other(const dynamic_bitset<OtherBlockType>& other) noexcept
         {
-            clear();
+            reset();
             if constexpr (sizeof(BlockType) > sizeof(OtherBlockType))
             {
                 constexpr uint16_t diff = sizeof(BlockType) / sizeof(OtherBlockType);
@@ -4173,7 +4173,7 @@ namespace woj
         /**
          * Bitset to C string conversion function
          * @param set_chr Character to represent set bits
-         * @param rst_chr Character to represent clear bits
+         * @param rst_chr Character to represent reset bits
          * @tparam Elem Type of character in the array
          * @return C string representation of the bitset
          */
@@ -4430,7 +4430,7 @@ namespace woj
         constexpr dynamic_bitset& operator>>=(const size_type& shift) noexcept
         {
             if (shift > m_block_size)
-                clear();
+                reset();
             else
             {
                 // Number of blocks to shift
@@ -4707,9 +4707,9 @@ namespace woj
 
         /**
          * Sets the bit at the specified index to 0 (false)
-         * @param index Index of the bit to clear (bit index)
+         * @param index Index of the bit to reset (bit index)
          */
-        void clear(const size_type& index) noexcept
+        void reset(const size_type& index) noexcept
         {
             m_data[index / m_block_size] &= ~(BlockType{ 1 } << index % m_block_size);
         }
@@ -4734,7 +4734,7 @@ namespace woj
         /**
          * Resets all the bits (sets all bits to 0)
          */
-        void clear() noexcept
+        void reset() noexcept
         {
             ::memset(m_data, 0, m_storage_size * sizeof(BlockType));
         }
@@ -4782,7 +4782,7 @@ namespace woj
          * Sets all the bits in the specified range to 0 (false)
          * @param end End of the range to set (bit index)
          */
-        void clear_range(const size_type& end) noexcept
+        void reset_range(const size_type& end) noexcept
         {
             ::memset(m_data, 0, end / m_block_size * sizeof(BlockType));
 
@@ -4875,7 +4875,7 @@ namespace woj
          * @param begin Begin of the range to fill (bit index)
          * @param end End of the range to fill (bit index)
          */
-        void clear_range(const size_type& begin, const size_type& end) noexcept
+        void reset_range(const size_type& begin, const size_type& end) noexcept
         {
             uint8_t to_add = 1, to_sub = 1;
             // create begin_block and fill the first byte with it
@@ -4936,7 +4936,7 @@ namespace woj
          * @param end End of the range to fill (bit index)
          * @param step Step size between the bits to fill (bit step)
          */
-        void clear_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
+        void reset_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
         {
             for (size_type i = begin; i < end; i += step)
                 m_data[i / m_block_size] &= ~(BlockType{ 1 } << i % m_block_size);
@@ -5074,9 +5074,9 @@ namespace woj
 
         /**
          * Sets the block at the specified index to 0 (all bits set to 0)
-         * @param index Index of the block to clear (block index)
+         * @param index Index of the block to reset (block index)
          */
-        void clear_block(const size_type& index) noexcept
+        void reset_block(const size_type& index) noexcept
         {
             m_data[index] = 0u;
         }
@@ -5105,7 +5105,7 @@ namespace woj
 		 * Sets all the blocks in the specified range to 0
 		 * @param end End of the range to fill (block index)
 		 */
-        void clear_block_range(const size_type& end) noexcept
+        void reset_block_range(const size_type& end) noexcept
         {
             for (size_type i = 0; i < end; ++i)
                 m_data[i] = 0;
@@ -5138,7 +5138,7 @@ namespace woj
 		 * @param begin begin of the range to fill (block index)
 		 * @param end End of the range to fill (block index)
 		 */
-        void clear_block_range(const size_type& begin, const size_type& end) noexcept
+        void reset_block_range(const size_type& begin, const size_type& end) noexcept
         {
             for (size_type i = begin; i < end; ++i)
                 m_data[i] = 0;
@@ -5174,7 +5174,7 @@ namespace woj
 		 * @param end End of the range to fill (block index)
 		 * @param step Step size between the bits to fill (block step)
 		 */
-        void clear_block_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
+        void reset_block_range(const size_type& begin, const size_type& end, const size_type& step) noexcept
         {
             for (size_type i = begin; i < end; i += step)
                 m_data[i] = 0;
@@ -5405,10 +5405,10 @@ namespace woj
         }
 
         /**
-         * Checks if all bits are cleared (none are set)
-         * @return true if all bits are cleared, false otherwise
+         * Checks if all bits are reseted (none are set)
+         * @return true if all bits are reseted, false otherwise
          */
-        [[nodiscard]] bool all_clear() const noexcept
+        [[nodiscard]] bool all_reset() const noexcept
         {
             return none();
         }

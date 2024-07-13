@@ -1553,6 +1553,11 @@ namespace woj
             return *this;
         }
 
+        constexpr operator bool() const noexcept
+        {
+            return Size;
+        }
+
         // Conversion functions/operators
 
     private:
@@ -4030,12 +4035,16 @@ namespace woj
 		 */
         dynamic_bitset& operator=(dynamic_bitset&& other) noexcept
         {
-            m_partial_size = other.m_partial_size;
-            m_storage_size = other.m_storage_size;
-            m_size = other.m_size;
-            m_data = other.m_data;
+            if (this != &other)
+            {
+                delete[] m_data;
 
-            _from_other(other);
+                m_partial_size = other.m_partial_size;
+                m_storage_size = other.m_storage_size;
+                m_size = other.m_size;
+                m_data = other.m_data;
+            	_from_other(other);
+            }
 
         	return *this;
         }
@@ -4279,6 +4288,11 @@ namespace woj
 
         // TODO: General comp & bitwise operators
 
+        operator bool() const noexcept
+        {
+            return m_size;
+        }
+
         // comparison operators
 
         /**
@@ -4328,6 +4342,16 @@ namespace woj
 
         // Bitwise operators
 
+    private:
+
+        void _bitwise_and(const dynamic_bitset& other, dynamic_bitset& result) noexcept
+        {
+            for (size_type i = 0; i < result.m_storage_size; ++i)
+                result.m_data = this->m_data[i] & other.m_data[i];
+        }
+
+    public:
+
         /**
          * Bitwise AND operator
          * @param other Other bitset instance to perform the operation with
@@ -4335,9 +4359,12 @@ namespace woj
          */
         [[nodiscard]] dynamic_bitset operator&(const dynamic_bitset& other) const noexcept
         {
+            
             dynamic_bitset result(m_size);
-            for (size_type i = 0; i < result.m_storage_size; ++i)
+            bitwise_and(other, result);
+            /*for (size_type i = 0; i < result.m_storage_size; ++i)
                 result.m_data[i] = m_data[i] & other.m_data[i];
+            return result;*/
             return result;
         }
 
@@ -4347,8 +4374,9 @@ namespace woj
          */
         dynamic_bitset& operator&=(const dynamic_bitset& other) noexcept
         {
-            for (size_type i = 0; i < m_storage_size; ++i)
-                m_data[i] &= other.m_data[i];
+            /*for (size_type i = 0; i < m_storage_size; ++i)
+                m_data[i] &= other.m_data[i];*/
+            bitwise_and(other, *this);
             return *this;
         }
 

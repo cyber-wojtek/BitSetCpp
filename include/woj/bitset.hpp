@@ -39,7 +39,6 @@ namespace woj
     class bitset
     {
     public:
-
         template <unsigned_integer BlockType, std::size_t Size>
         friend std::ostream& operator<<(std::ostream& os, const bitset<BlockType, Size>& obj)
         {
@@ -1591,7 +1590,7 @@ namespace woj
         template <unsigned_integer OtherBlockType, size_type OtherSize> requires (std::convertible_to<OtherBlockType, BlockType> && !std::is_same_v<BlockType, OtherBlockType>)
         constexpr void _from_other(const bitset<OtherBlockType, OtherSize>& other) noexcept
         {
-            if (sizeof(BlockType) > sizeof(OtherBlockType))
+            if constexpr (sizeof(BlockType) > sizeof(OtherBlockType))
             {
                 constexpr uint16_t diff = sizeof(BlockType) / sizeof(OtherBlockType);
 
@@ -1758,9 +1757,12 @@ namespace woj
         constexpr void from_integer(const T& value) noexcept
         {
             reset();
-            if (sizeof(T) <= sizeof(BlockType))
+            if constexpr (sizeof(T) <= sizeof(BlockType))
             {
-                m_data[0] = m_data[0] & ~static_cast<BlockType>((std::numeric_limits<T>::max)()) | value;
+            	if constexpr (sizeof(T) != sizeof(BlockType))
+                    m_data[0] = BlockType{ 0 } | value;
+                else
+                    m_data[0] = value;
                 return;
             }
 
@@ -1780,7 +1782,7 @@ namespace woj
         template <unsigned_integer T>
         [[nodiscard]] constexpr T to_integer() const noexcept
         {
-            if (sizeof(T) <= sizeof(BlockType))
+            if constexpr (sizeof(T) <= sizeof(BlockType))
                 return static_cast<T>(m_data[0]);
 
             constexpr uint16_t diff = sizeof(T) / sizeof(BlockType);
@@ -2718,7 +2720,7 @@ namespace woj
         /**
 		 * Bit-length of the underlying type
 		 */
-        static constexpr uint16_t m_block_size = sizeof(BlockType) * 8;
+        static constexpr uint16_t m_block_size = sizeof(BlockType) * CHAR_BIT;
 
         /**
 		 * Size of the bitset in blocks, without last potential dangling block
@@ -2749,14 +2751,12 @@ namespace woj
     class dynamic_bitset
     {
     public:
-        template <unsigned_integer BlockType>
-        friend std::ostream& operator<<(std::ostream& os, const dynamic_bitset<BlockType>& obj)
+        friend std::ostream& operator<<(std::ostream& os, const dynamic_bitset& obj)
         {
             for (size_type i = 0; i < obj.m_size; ++i)
                 os << obj.test(i);
             return os;
         }
-
         // Type definitions
 
         // Reference types
@@ -3948,19 +3948,25 @@ namespace woj
         template <unsigned_integer OtherBlockType> requires (std::convertible_to<OtherBlockType, BlockType> && !std::is_same_v<BlockType, OtherBlockType>)
         dynamic_bitset& operator=(const dynamic_bitset<OtherBlockType>& other) noexcept
         {
-            ::memset(m_data, 0, m_storage_size * sizeof(BlockType));
-
-            if (sizeof(BlockType) > sizeof(OtherBlockType))
+            if constexpr (sizeof(BlockType) > sizeof(OtherBlockType))
             {
                 constexpr uint16_t diff = sizeof(BlockType) / sizeof(OtherBlockType);
 
+                if (other.m_storage_size != m_storage_size * diff)
+                {
+                    delete[] m_data;
+                    m_storage_size = (other.m_storage_size + diff - 1) / diff;
+                    m_data = new BlockType[m_storage_size];
+                }
+
                 for (size_type i = 0; i < m_storage_size; ++i)
                 {
+                	m_data[i] = 0;
                     for (uint16_t j = 0; j < diff; ++j)
                     {
                         if (i * diff + j >= other.m_storage_size)
                             return *this;
-	                    m_data[i] |= static_cast<BlockType>(other.m_data[i * diff + j]) << j * other.m_block_size;
+	                    m_data[i] |= static_cast<BlockType>(other.m_data[i * diff + j]) << j * other.m_block_size; // Accumulate
                     }
                 }
             }
@@ -3968,13 +3974,22 @@ namespace woj
             {
                 constexpr uint16_t diff = sizeof(OtherBlockType) / sizeof(BlockType);
 
+                const size_type other_converted_storage_size = other.m_storage_size * diff;
+
+                if (m_storage_size != other_converted_storage_size)
+                {
+                    delete[] m_data;
+                	m_storage_size = other_converted_storage_size;
+                    m_data = new BlockType[other_converted_storage_size];
+                }
+
                 for (size_type i = 0; i < other.m_storage_size; ++i)
                 {
                     for (uint16_t j = 0; j < diff; ++j)
                     {
                         if (i * diff + j >= m_storage_size)
                             return *this;
-	                    m_data[i * diff + j] = other.m_data[i] >> j % diff * m_block_size;
+	                    m_data[i * diff + j] = other.m_data[i] >> j % diff * m_block_size; // Break down
                     }
                 }
             }
@@ -3990,9 +4005,23 @@ namespace woj
          */
         dynamic_bitset& operator=(const dynamic_bitset& other) noexcept
         {
-            reset();
+            if (this == &other)
+            {
+                return *this;
+            }
+
+            if (other.m_storage_size != m_storage_size)
+            {
+                delete[] m_data;
+                m_data = new BlockType[other.m_storage_size];
+                m_storage_size = other.m_storage_size;
+            }
+
+        	m_size = other.m_size;
+
             std::copy(other.m_data, other.m_data + (std::min)(m_storage_size, other.m_storage_size), m_data);
-            return *this;
+            
+        	return *this;
         }
 
         /**
@@ -4006,8 +4035,7 @@ namespace woj
             m_size = other.m_size;
             m_data = other.m_data;
 
-            other.m_partial_size = other.m_storage_size = other.m_size = 0;
-            other.m_data = nullptr;
+            _from_other(other);
 
         	return *this;
         }
@@ -4194,18 +4222,21 @@ namespace woj
          * @param value Value to convert from
          */
         template <unsigned_integer T>
-        void _from_integer(const T& value) noexcept
+        void _from_integer(const T value) noexcept
         {
-            if (sizeof(T) <= sizeof(BlockType))
+            if constexpr (sizeof(T) <= sizeof(BlockType))
             {
                 if (m_storage_size != 1)
                 {
                     delete[] m_data;
                     m_data = new BlockType;
-                    m_storage_size = 1;
-                    m_size = sizeof(T) * 8;
+                	m_storage_size = 1;
+                    m_size = sizeof(T) * CHAR_BIT;
                 }
-                *m_data = ~static_cast<BlockType>((std::numeric_limits<T>::max)()) | value;
+                if constexpr (sizeof(T) != sizeof(BlockType))
+                    *m_data = BlockType{ 0 } | value;
+                else
+                    *m_data = value;
                 return;
             }
 
@@ -4216,7 +4247,7 @@ namespace woj
                 delete[] m_data;
                 m_data = new BlockType[diff];
                 m_storage_size = diff;
-                m_size = sizeof(T) * 8;
+                m_size = sizeof(T) * CHAR_BIT;
             }
 
             for (uint16_t i = 0; i < diff; ++i)
@@ -4236,7 +4267,7 @@ namespace woj
         [[nodiscard]] T to_integer() const noexcept
         {
             if constexpr (sizeof(T) <= sizeof(BlockType))
-                return m_data[0];
+                return *m_data;
 
             constexpr uint16_t diff = sizeof(T) / sizeof(BlockType);
             T result = 0;
@@ -5545,7 +5576,7 @@ namespace woj
          */
         void insert(const size_type& index, const bool value)
         {
-            if (index == m_size)
+            [[unlikely]] if (index == m_size)
             {
                 push_back(value);
                 return;
@@ -5553,8 +5584,9 @@ namespace woj
 
             if (!(m_size % m_block_size))
             {
-                m_partial_size = 0;
                 BlockType* new_data = new BlockType[++m_storage_size];
+                ++m_partial_size;
+                ++m_size;
                 if (m_data)
                 {
                     // copy everything prepending the bit
@@ -5566,12 +5598,16 @@ namespace woj
                             *(new_data + i / m_block_size) &= ~(BlockType{ 1 } << i % m_block_size);
                     }
                     // copy everything appending the bit
-                    for (size_type i = index; i < m_size; ++i)
+                    for (size_type i = m_size - 1; ; --i)
                     {
+                        const size_type next_i = i + 1;
+
                         if (test(i))
-                            *(new_data + (i + 1) / m_block_size) |= BlockType{ 1 } << (i + 1) % m_block_size;
+                            *(new_data + next_i / m_block_size) |= BlockType{ 1 } << next_i % m_block_size;
                         else
-                            *(new_data + (i + 1) / m_block_size) &= ~(BlockType{ 1 } << (i + 1) % m_block_size);
+                            *(new_data + next_i / m_block_size) &= ~(BlockType{ 1 } << next_i % m_block_size);
+                        [[unlikely]] if (i == index)
+                            break;
                     }
                     delete[] m_data;
                     m_data = new_data;
@@ -5583,14 +5619,15 @@ namespace woj
             {
                 const dynamic_bitset tmp_copy(*this);
                 // copy everything appending the bit
-                for (size_type i = index; i < m_size; ++i)
+                for (size_type i = m_size; ; --i)
                 {
                     set(i + 1, tmp_copy.test(i));
+                    [[unlikely]] if (i == index) 
+						break;
                 }
                 set(index, value);
-                ++m_partial_size;
+                m_partial_size = ++m_size % m_block_size;
             }
-            ++m_size;
         }
 
         /**
@@ -5656,8 +5693,12 @@ namespace woj
                     *(new_data + i) = *(m_data + i);
 
                 // copy everything appending the block
-                for (size_type i = index; i < m_storage_size; ++i)
+                for (size_type i = m_storage_size - 1; ; --i)
+                {
                     *(new_data + i + 1) = *(m_data + i);
+					[[unlikely]] if (i == index)
+						break;
+                }
                 delete[] m_data;
             }
             
@@ -5671,8 +5712,8 @@ namespace woj
         /**
          * Bit-length of the underlying type
          */
-        static constexpr uint16_t m_block_size = sizeof(BlockType) * 8;
-
+        static constexpr uint16_t m_block_size = sizeof(BlockType) * CHAR_BIT;
+        
         /**
          * Count of bits that are utilized in last dangling block, if any
          */
